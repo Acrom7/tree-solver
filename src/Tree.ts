@@ -13,7 +13,7 @@ export class Tree {
         this.gen(this.tokens, this.root)
     }
 
-    gen(tokens: string[], root: Node): void {
+    private gen(tokens: string[], root: Node): void {
         if (tokens.length === 1) {
             root.value = tokens[0]
             root.type = NodeType.Number
@@ -34,7 +34,7 @@ export class Tree {
     }
 
     // Возвращает приоритет оператора: чем больше возращаемое значение - тем больше приоритет
-    getPriority = (operator: string): number => {
+    private getPriority = (operator: string): number => {
         // Сгруппированы в порядке возрастания приоритета
         const operatorsPriority = [['+', '-'], ['*', '/']]
         for (let i = 0; i < operatorsPriority.length; ++i) {
@@ -46,7 +46,7 @@ export class Tree {
     }
 
     // Возвращает индекс оператора с наименьшим приоритетом
-    getLowPriorityToken = (tokensArray: string[]): number => {
+    private getLowPriorityToken = (tokensArray: string[]): number => {
         let lowPriority = Number.MAX_VALUE
         let index = -1
         let parenthesesCount = 0
@@ -65,6 +65,29 @@ export class Tree {
             }
         }
         return index
+    }
+
+    solve({left, right, type, value}: Node = this.root): any {
+        if (type === NodeType.Number) {
+            if (!isNaN(parseFloat(value))) {
+                return parseFloat(value)
+            } else {
+                throw Error(`Invalid character ${value}`)
+            }
+        } else if (type === NodeType.Operator) {
+            switch (value) {
+                case '+':
+                    return this.solve(left as Node) + this.solve(right as Node)
+                case '-':
+                    return this.solve(left as Node) - this.solve(right as Node)
+                case '*':
+                    return this.solve(left as Node) * this.solve(right as Node)
+                case '/':
+                    return this.solve(left as Node) / this.solve(right as Node)
+            }
+        } else {
+            throw Error(`Don't know what to do with type:${type}, value:${value}`)
+        }
     }
 
     print() {

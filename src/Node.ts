@@ -5,13 +5,11 @@ export enum NodeType {
 }
 
 export class Node {
-    type: NodeType | null
-    value: string
+    value: string | number
     left: Node | null
     right: Node | null
 
-    constructor(nodeValue: string = '', nodeType: NodeType = NodeType.Empty) {
-        this.type = nodeType
+    constructor(nodeValue: string | number = ' ') {
         this.value = nodeValue
         this.left = null
         this.right = null

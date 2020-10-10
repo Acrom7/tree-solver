@@ -23,15 +23,18 @@ export class Tree {
         if (!isNaN(parseFloat(value as string))) {
             return parseFloat(value as string)
         } else if (operators.includes(value as string)) {
+            if (left === null || right === null) {
+                throw new Error(`Need arguments for ${value}`)
+            }
             switch (value) {
                 case '+':
-                    return this.solve(left as Node) + this.solve(right as Node)
+                    return this.solve(left) + this.solve(right)
                 case '-':
-                    return this.solve(left as Node) - this.solve(right as Node)
+                    return this.solve(left) - this.solve(right)
                 case '*':
-                    return this.solve(left as Node) * this.solve(right as Node)
+                    return this.solve(left) * this.solve(right)
                 case '/':
-                    return this.solve(left as Node) / this.solve(right as Node)
+                    return this.solve(left) / this.solve(right)
             }
         } else {
             throw Error(`Invalid character ${value}`)
@@ -51,6 +54,10 @@ export class Tree {
     }
 
     insert(value: string | number, level: number, position: number): number {
+        if (position > Math.pow(2, level - 1)) {
+            return -1
+        }
+
         let currentNode = this.root
         let localPosition = position
         let currentLevel = 1
@@ -71,7 +78,6 @@ export class Tree {
                 currentLevel++
             } else {
                 if (currentNode.left === null) {
-                    // Если справа пустая Node, но она нам и нужна
                     if (level === currentLevel + 1) {
                         currentNode.left = new Node(value)
                         return 0
@@ -84,6 +90,50 @@ export class Tree {
         }
         currentNode.value = value
         return 0
+    }
+
+    remove(level: number, position: number): number {
+        let currentNode = this.root
+        let parent: Node | null = currentNode
+        let localPosition = position
+        let currentLevel = 1
+
+        enum PARENT {
+            LEFT = 'LEFT',
+            RIGHT = 'RIGHT'
+        }
+
+        let direction: PARENT | null = null
+        while (level !== currentLevel) {
+            const middle = Math.pow(2, level - currentLevel - 1)
+            // Если нужна позиция больше чем середина (для текущего уровня)
+            if (localPosition > middle) {
+                if (currentNode.right === null) {
+                    return -1
+                }
+                localPosition -= middle
+                parent = currentNode
+                currentNode = currentNode.right
+                direction = PARENT.RIGHT
+                currentLevel++
+            } else {
+                if (currentNode.left === null) {
+                    return -1
+                }
+                parent = currentNode
+                currentNode = currentNode.left
+                direction = PARENT.LEFT
+                currentLevel++
+            }
+        }
+        if (direction && direction === PARENT.LEFT) {
+            parent.left = null
+            return 0
+        } else if (direction && direction === PARENT.RIGHT) {
+            parent.right = null
+            return 0
+        }
+        return -1
     }
 
     private gen(tokens: string[], root: Node): void {

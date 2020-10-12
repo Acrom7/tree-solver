@@ -1,5 +1,5 @@
-import {Node, NodeType} from './Node'
-import {operators} from './types'
+import {Node} from './Node'
+import {LEFT_PARENTHESIS, operators, RIGHT_PARENTHESIS} from './types'
 // @ts-ignore
 import {treeFromArray, treeToASCII} from '../node_modules/treevis/tree'
 
@@ -144,6 +144,9 @@ export class Tree {
         const lowPriorityIndex = this.getLowPriorityToken(tokens)
         // Если нет оператора вне скобок
         if (lowPriorityIndex === -1) {
+            if (tokens[0] !== LEFT_PARENTHESIS || tokens[tokens.length - 1] !== RIGHT_PARENTHESIS) {
+                throw new Error(`Don't know what to do with ${tokens}`)
+            }
             this.gen(tokens.slice(1, -1), root)
             return
         }

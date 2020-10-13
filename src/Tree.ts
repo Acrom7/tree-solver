@@ -4,10 +4,10 @@ import {LEFT_PARENTHESIS, operators, RIGHT_PARENTHESIS} from './types'
 import {treeFromArray, treeToASCII} from '../node_modules/treevis/tree'
 
 export class Tree {
-    root: Node
+    root: Node | null
 
     constructor() {
-        this.root = new Node()
+        this.root = null
     }
 
     get height() {
@@ -16,10 +16,14 @@ export class Tree {
 
     expr(expression: string) {
         const tokens = expression.split('').filter(el => el !== ' ')
-        this.gen(tokens, this.root)
+        this.root = this.gen(tokens)
     }
 
-    solve({left, right, value}: Node = this.root): any {
+    solve(root: Node | null = this.root): any {
+        if (root === null) {
+            throw new Error('Tree is empty')
+        }
+        const {value, left, right} = root
         if (!isNaN(parseFloat(value as string))) {
             return parseFloat(value as string)
         } else if (operators.includes(value as string)) {
@@ -37,25 +41,39 @@ export class Tree {
                     return this.solve(left) / this.solve(right)
             }
         } else {
-            throw Error(`Invalid character ${value}`)
+            let err
+            if (typeof value === 'string' && value.trim() === '') {
+                err = new Error('Empty node')
+            } else {
+                err = new Error(`Invalid character ${value}`)
+            }
+            throw err
         }
     }
 
     print() {
-        const array = this.toArray(this.root)
+        const array = Tree.toArray(this.root)
         treeToASCII(treeFromArray(array))
     }
 
     printFullTree() {
         const emptyTree = this.getFullEmptyTree(this.height)
         const fullTree = this.getFullTree(this.root, emptyTree)
-        const array = this.toArray(fullTree)
+        const array = Tree.toArray(fullTree)
         treeToASCII(treeFromArray(array))
     }
 
     insert(value: string | number, level: number, position: number): number {
         if (position > Math.pow(2, level - 1)) {
             return -1
+        }
+
+        if (this.root === null) {
+            if (level === 1 && position === 1) {
+                this.root = new Node(value)
+            } else {
+                return -1
+            }
         }
 
         let currentNode = this.root
@@ -93,6 +111,14 @@ export class Tree {
     }
 
     remove(level: number, position: number): number {
+        if (this.root === null) {
+            if (level === 1 && position === 1) {
+                return 0
+            } else {
+                return -1
+            }
+        }
+
         let currentNode = this.root
         let parent: Node | null = currentNode
         let localPosition = position
@@ -136,10 +162,11 @@ export class Tree {
         return -1
     }
 
-    private gen(tokens: string[], root: Node): void {
+    private gen(tokens: string[]): Node {
+        const root = new Node()
         if (tokens.length === 1) {
             root.value = tokens[0]
-            return
+            return root
         }
         const lowPriorityIndex = this.getLowPriorityToken(tokens)
         // Если нет оператора вне скобок
@@ -147,14 +174,12 @@ export class Tree {
             if (tokens[0] !== LEFT_PARENTHESIS || tokens[tokens.length - 1] !== RIGHT_PARENTHESIS) {
                 throw new Error(`Don't know what to do with ${tokens}`)
             }
-            this.gen(tokens.slice(1, -1), root)
-            return
+            return this.gen(tokens.slice(1, -1))
         }
         root.value = tokens[lowPriorityIndex]
-        root.left = new Node()
-        this.gen(tokens.slice(0, lowPriorityIndex), root.left)
-        root.right = new Node()
-        this.gen(tokens.slice(lowPriorityIndex + 1), root.right)
+        root.left = this.gen(tokens.slice(0, lowPriorityIndex))
+        root.right = this.gen(tokens.slice(lowPriorityIndex + 1))
+        return root
     }
 
     private getHeight(root: Node | null): number {
@@ -162,12 +187,6 @@ export class Tree {
             return 0
         }
         return 1 + Math.max(this.getHeight(root.left), this.getHeight(root.right))
-    }
-
-    private getLevel(root: Node | null): number {
-        const height = this.getHeight(root)
-        const fullHeight = this.getHeight(this.root)
-        return fullHeight - height + 1
     }
 
     // Возвращает приоритет оператора: чем больше возращаемое значение - тем больше приоритет
@@ -217,7 +236,10 @@ export class Tree {
         return root
     }
 
-    private toArray(root: Node): (string | number | null)[] {
+    private static toArray(root: Node | null): (string | number | null)[] {
+        if (root === null) {
+            return []
+        }
         const stack: (Node | null)[] = [root]
         const result: (string | number | null)[] = []
         while (stack.length !== 0) {
@@ -234,7 +256,10 @@ export class Tree {
         return result
     }
 
-    private getFullTree(root: Node, fakeRoot: Node) {
+    private getFullTree(root: Node | null, fakeRoot: Node): Node {
+        if (root === null) {
+            return fakeRoot
+        }
         fakeRoot.value = root.value
         if (root.left !== null) {
             this.getFullTree(root.left, fakeRoot.left as Node)

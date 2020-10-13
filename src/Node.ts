@@ -1,9 +1,3 @@
-export enum NodeType {
-    Number = 'Number',
-    Operator = 'Operator',
-    Empty = 'Empty'
-}
-
 export class Node {
     value: string | number
     left: Node | null

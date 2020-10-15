@@ -1,7 +1,6 @@
 import {Node} from './Node'
 import {LEFT_PARENTHESIS, operators, RIGHT_PARENTHESIS} from './types'
-// @ts-ignore
-import {treeFromArray, treeToASCII} from '../node_modules/treevis/tree'
+import {treeFromArray, treeToASCII} from '@acrom/treevis'
 
 export class Tree {
     root: Node | null
@@ -53,14 +52,14 @@ export class Tree {
 
     print() {
         const array = Tree.toArray(this.root)
-        treeToASCII(treeFromArray(array))
+        console.log(treeToASCII(treeFromArray(array)))
     }
 
     printFullTree() {
         const emptyTree = this.getFullEmptyTree(this.height)
         const fullTree = this.getFullTree(this.root, emptyTree)
         const array = Tree.toArray(fullTree)
-        treeToASCII(treeFromArray(array))
+        console.log(treeToASCII(treeFromArray(array)))
     }
 
     insert(value: string | number, level: number, position: number): number {
@@ -124,7 +123,7 @@ export class Tree {
         let localPosition = position
         let currentLevel = 1
 
-        enum PARENT {
+        const enum PARENT {
             LEFT = 'LEFT',
             RIGHT = 'RIGHT'
         }

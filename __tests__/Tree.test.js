@@ -21,17 +21,19 @@ describe('Inserting nodes', () => {
 		tree = new Tree()
 	})
 
+	afterEach(() => {
+		expect(tree).toMatchSnapshot()
+	})
+
 	it('should be simple and return 2', () => {
 		tree.insert('+', 1, 1)
 		tree.insert('1', 2, 1)
 		tree.insert(1, 2, 2)
 		expect(tree.solve()).toBe(2)
-		expect(tree).toMatchSnapshot()
 	})
 
 	it('should throw error on empty tree', () => {
 		expect(() => tree.solve()).toThrowError(/empty/i)
-		expect(tree).toMatchSnapshot()
 	})
 
 	it('should parse expression, insert some nodes, and return 88', () => {
@@ -43,7 +45,6 @@ describe('Inserting nodes', () => {
 		tree.insert(5, 4, 5)
 		tree.insert(6, 4, 6)
 		expect(tree.solve()).toBe(88)
-		expect(tree).toMatchSnapshot()
 	})
 
 	it('should replace root node operator', () => {
@@ -52,12 +53,43 @@ describe('Inserting nodes', () => {
 		tree.insert(1, 2, 2)
 		tree.insert('-', 1, 1)
 		expect(tree.solve()).toBe(0)
-		expect(tree).toMatchSnapshot()
 	})
 
 	it('should not insert value into level 2 on empty tree', () => {
 		const result = tree.insert('1', 2, 1)
 		expect(result).toBe(-1)
+	})
+})
+
+
+describe('Deleting nodes', () => {
+	let tree
+
+	beforeEach(() => {
+		tree = new Tree()
+	})
+
+	afterEach(() => {
 		expect(tree).toMatchSnapshot()
+	})
+
+	it('should remove one node', () => {
+		tree.expr('1 + 1')
+		tree.remove(2, 1)
+	})
+
+	it('should remove leaf', () => {
+		tree.expr('1 + 2 * ( 3 + 4 )')
+		tree.remove(4, 8)
+	})
+
+	it('should remove node and its children', () => {
+		tree.expr('1 + 2 * ( 3 + 4 )')
+		tree.remove(2, 2)
+	})
+
+	it('should remove root of tree', () => {
+		tree.expr('1 + 2 * ( 3 + 4 )')
+		tree.remove(1, 1)
 	})
 })

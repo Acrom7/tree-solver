@@ -158,6 +158,9 @@ export class Tree {
         } else if (direction && direction === PARENT.RIGHT) {
             parent.right = null
             return 0
+        } else {
+            // deleting root
+            this.root = null
         }
         return -1
     }

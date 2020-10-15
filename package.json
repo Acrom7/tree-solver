@@ -30,7 +30,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "@acrom/treevis": "0.0.3"
+    "treevis": "^0.1.4"
   },
   "jest": {
     "preset": "ts-jest/presets/js-with-babel"

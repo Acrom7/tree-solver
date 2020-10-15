@@ -1,7 +1,6 @@
 import {Node} from './Node'
 import {LEFT_PARENTHESIS, operators, RIGHT_PARENTHESIS} from './types'
-// @ts-ignore
-import {treeFromArray, treeToASCII} from './treevis'
+import {treeFromArray, treeToASCII} from '@acrom/treevis'
 
 export class Tree {
     root: Node | null

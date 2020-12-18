@@ -209,7 +209,7 @@ export class Tree {
         let lowPriority = Number.MAX_VALUE
         let index = -1
         let parenthesesCount = 0
-        for (let i = 0; i < tokensArray.length; ++i) {
+        for (let i = tokensArray.length - 1; i >= 0; --i) {
             const token = tokensArray[i]
             if (operators.includes(token) && parenthesesCount === 0) {
                 const tokenPriority = this.getPriority(token)
